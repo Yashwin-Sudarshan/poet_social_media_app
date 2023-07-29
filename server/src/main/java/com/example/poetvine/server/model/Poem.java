@@ -39,6 +39,7 @@ public class Poem {
     @JoinColumn(name = "author_id")
     private User author;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
     private PoemStatus poemStatus;
 

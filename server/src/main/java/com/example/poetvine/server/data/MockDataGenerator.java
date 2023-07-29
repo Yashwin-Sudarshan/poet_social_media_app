@@ -2,6 +2,7 @@ package com.example.poetvine.server.data;
 
 import com.example.poetvine.server.model.*;
 import com.example.poetvine.server.model.enumeration.PoemStatus;
+import com.example.poetvine.server.model.enumeration.Role;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
 import com.example.poetvine.server.repository.*;
 import com.github.javafaker.Faker;
@@ -55,7 +56,8 @@ public class MockDataGenerator {
                     faker.lorem().sentence(),
                     faker.lorem().words(3).toArray(new String[0]),
                     VisibilityPreference.PUBLIC,
-                    VisibilityPreference.PUBLIC
+                    VisibilityPreference.PUBLIC,
+                    Role.USER
             );
 
             users.add(user);

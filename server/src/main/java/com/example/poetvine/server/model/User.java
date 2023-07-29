@@ -1,5 +1,6 @@
 package com.example.poetvine.server.model;
 
+import com.example.poetvine.server.model.enumeration.Role;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -7,16 +8,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -42,9 +44,11 @@ public class User {
 
     private String[] topicsWrittenAbout;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
     private VisibilityPreference profileVisibilityPreference;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
     private VisibilityPreference poemVisibilityPreference;
 
@@ -73,8 +77,11 @@ public class User {
     @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
     private Set<Notification> notifications = new HashSet<>();
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     public User(String email, String username, String password, String profileImageName, String bio, String[] topicsWrittenAbout,
-                VisibilityPreference profileVisibilityPreference, VisibilityPreference poemVisibilityPreference) {
+                VisibilityPreference profileVisibilityPreference, VisibilityPreference poemVisibilityPreference, Role role) {
         this.email = email;
         this.username = username;
         this.password = password;
@@ -83,6 +90,7 @@ public class User {
         this.topicsWrittenAbout = topicsWrittenAbout;
         this.profileVisibilityPreference = profileVisibilityPreference;
         this.poemVisibilityPreference = poemVisibilityPreference;
+        this.role = role;
     }
 
     public void followUser(User user) {
@@ -143,5 +151,30 @@ public class User {
         }
         User other = (User) obj;
         return Objects.equals(userId, other.userId); // Use a unique field for equality comparison
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
