@@ -1,17 +1,24 @@
 package com.example.poetvine.server.controller;
 
+import com.example.poetvine.server.exception.UserAlreadyExists;
 import com.example.poetvine.server.payload.AuthenticationRequest;
 import com.example.poetvine.server.payload.RegisterRequest;
 import com.example.poetvine.server.response.AuthenticationResponse;
 import com.example.poetvine.server.service.AuthenticationService;
+import com.example.poetvine.server.service.MapValidationErrorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,22 +27,51 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+    private final MapValidationErrorService mapValidationErrorService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+    public ResponseEntity<?> register(
+            @Valid @RequestBody RegisterRequest request,
+            BindingResult result
     ) {
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationErrorService(result);
+        if (errorMap != null) {
+            return errorMap;
+        }
 
-        logger.info("Called register route with request body: ", request);
+        AuthenticationResponse response = null;
+        try {
+            response = authenticationService.register(request);
 
-        return ResponseEntity.ok(authenticationService.register(request));
+        } catch (UserAlreadyExists e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody AuthenticationRequest request
+    public ResponseEntity<?> register(
+            @Valid @RequestBody AuthenticationRequest request,
+            BindingResult result
     ) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        ResponseEntity<?> errorMap = mapValidationErrorService.MapValidationErrorService(result);
+        if (errorMap != null) {
+            return errorMap;
+        }
+
+        AuthenticationResponse response = null;
+        try {
+            response = authenticationService.authenticate(request);
+
+        } catch (AuthenticationException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

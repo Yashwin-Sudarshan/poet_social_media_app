@@ -24,18 +24,15 @@ public class User implements UserDetails {
     private Long userId;
 
     @NotNull
-    @NotBlank
     @Email
     @Column(unique = true)
     private String email;
 
     @NotNull
-    @NotBlank
     @Column(unique = true)
     private String username;
 
     @NotNull
-    @NotBlank
     private String password;
 
     private String profileImageName;

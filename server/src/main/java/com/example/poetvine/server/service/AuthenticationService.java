@@ -1,6 +1,7 @@
 package com.example.poetvine.server.service;
 
 import com.example.poetvine.server.config.security.JwtService;
+import com.example.poetvine.server.exception.UserAlreadyExists;
 import com.example.poetvine.server.model.User;
 import com.example.poetvine.server.model.enumeration.Role;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
@@ -16,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -25,9 +28,17 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-
     public AuthenticationResponse register(RegisterRequest request) {
+        // Check if username or email already exists
+        Optional<User> userWithExistingUsername = userRepository.findByUsername(request.getUsername());
+        Optional<User> userWithExistingEmail = userRepository.findByEmail(request.getEmail());
+        if (userWithExistingUsername.isPresent()) {
+            throw new UserAlreadyExists("Username already exists");
+        }
+        if (userWithExistingEmail.isPresent()) {
+            throw new UserAlreadyExists("Email already exists");
+        }
+
         User user = new User(
             request.getEmail(),
             request.getUsername(),
@@ -42,8 +53,6 @@ public class AuthenticationService {
 
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
-
-        logger.info("User created: ", user);
 
         return AuthenticationResponse
             .builder()
