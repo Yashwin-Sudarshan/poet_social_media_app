@@ -7,6 +7,7 @@ import com.example.poetvine.server.model.enumeration.VisibilityPreference;
 import com.example.poetvine.server.repository.*;
 import com.github.javafaker.Faker;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -19,6 +20,7 @@ public class MockDataGenerator {
     private static final int NUMBER_OF_NOTIFICATIONS = 15;
 
     private final Faker faker;
+    private final SecureRandom random;
     private final UserRepository userRepository;
     private final PoemRepository poemRepository;
     private final LikeRepository likeRepository;
@@ -29,6 +31,7 @@ public class MockDataGenerator {
                              LikeRepository likeRepository, CommentRepository commentRepository,
                              NotificationRepository notificationRepository) {
         this.faker = new Faker();
+        this.random = new SecureRandom();
         this.userRepository = userRepository;
         this.poemRepository = poemRepository;
         this.likeRepository = likeRepository;
@@ -55,11 +58,12 @@ public class MockDataGenerator {
                     faker.avatar().image(),
                     faker.lorem().sentence(),
                     faker.lorem().words(3).toArray(new String[0]),
-                    VisibilityPreference.PUBLIC,
-                    VisibilityPreference.PUBLIC,
+//                    VisibilityPreference.PUBLIC,
+                    randomEnum(VisibilityPreference.class),
+//                    VisibilityPreference.PUBLIC,
+                    randomEnum(VisibilityPreference.class),
                     Role.USER
             );
-
             users.add(user);
         }
 
@@ -99,10 +103,11 @@ public class MockDataGenerator {
                     faker.lorem().paragraph(),
                     faker.lorem().words(3).toArray(new String[0]),
                     author,
-                    PoemStatus.PUBLISHED
+//                    PoemStatus.PUBLISHED
+                    randomEnum(PoemStatus.class)
             );
 
-            poem.setCreatedAt(generateRandomDateTime());
+            poem.setCreatedAt(generateRandomDateTime(null));
             poemRepository.save(poem);
             poems.add(poem);
 
@@ -119,6 +124,7 @@ public class MockDataGenerator {
             Poem poem = getRandomPoem(poems);
 
             Like like = new Like(user, poem);
+            like.setLikedAt(generateRandomDateTime(poem.getCreatedAt()));
             likeRepository.save(like);
 
             poem.addLike(like);
@@ -132,7 +138,7 @@ public class MockDataGenerator {
             Poem poem = getRandomPoem(poems);
 
             Comment comment = new Comment(user, poem, faker.lorem().sentence());
-            comment.setCommentedAt(generateRandomDateTime());
+            comment.setCommentedAt(generateRandomDateTime(poem.getCreatedAt()));
             commentRepository.save(comment);
 
             poem.addComment(comment);
@@ -161,12 +167,26 @@ public class MockDataGenerator {
         return poems.get(index);
     }
 
-    private LocalDateTime generateRandomDateTime() {
+    private LocalDateTime generateRandomDateTime(LocalDateTime dateTimeParameter) {
         Random random = new Random();
-        long daysAgo = random.nextInt(60) + 1; // Generates a random number between 1 and 60 (inclusive)
-        long hoursAgo = random.nextInt(24);    // Generates a random number between 0 and 23 (inclusive)
+        LocalDateTime currentDate = LocalDateTime.now();
 
-        return LocalDateTime.now().minusDays(daysAgo).minusHours(hoursAgo);
+        if (dateTimeParameter == null) {
+            long daysAgo = random.nextInt(60) + 1; // Generates a random number between 1 and 60 (inclusive)
+            long hoursAgo = random.nextInt(24);    // Generates a random number between 0 and 23 (inclusive)
+
+            return currentDate.minusDays(daysAgo).minusHours(hoursAgo);
+        } else {
+            long daysAfter = random.nextInt(60) + 1; // Generates a random number between 1 and 60 (inclusive)
+            long hoursAfter = random.nextInt(24);    // Generates a random number between 0 and 23 (inclusive)
+
+            return dateTimeParameter.plusDays(daysAfter).plusHours(hoursAfter);
+        }
+    }
+
+    private <T extends Enum<?>> T randomEnum(Class<T> tClass) {
+        int x = random.nextInt(tClass.getEnumConstants().length);
+        return tClass.getEnumConstants()[x];
     }
 }
 

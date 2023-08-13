@@ -4,5 +4,6 @@ public enum Filter {
     TOP_TODAY,
     TOP_THIS_WEEK,
     TOP_THIS_MONTH,
-    RECENT
+    RECENT,
+    FEATURED
 }

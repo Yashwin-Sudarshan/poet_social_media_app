@@ -1,6 +1,6 @@
 package com.example.poetvine.server.controller;
 
-import com.example.poetvine.server.exception.UserAlreadyExists;
+import com.example.poetvine.server.exception.UserAlreadyExistsException;
 import com.example.poetvine.server.payload.AuthenticationRequest;
 import com.example.poetvine.server.payload.RegisterRequest;
 import com.example.poetvine.server.response.AuthenticationResponse;
@@ -43,7 +43,7 @@ public class AuthenticationController {
         try {
             response = authenticationService.register(request);
 
-        } catch (UserAlreadyExists e) {
+        } catch (UserAlreadyExistsException e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -53,7 +53,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> register(
+    public ResponseEntity<?> authenticate(
             @Valid @RequestBody AuthenticationRequest request,
             BindingResult result
     ) {
