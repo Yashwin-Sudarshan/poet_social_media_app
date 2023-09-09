@@ -5,6 +5,7 @@ import com.example.poetvine.server.exception.ResourceNotFoundException;
 import com.example.poetvine.server.exception.UserNotAuthorisedException;
 import com.example.poetvine.server.model.User;
 import com.example.poetvine.server.payload.EditUserRequest;
+import com.example.poetvine.server.response.BaseUserDto;
 import com.example.poetvine.server.response.MyUserDto;
 import com.example.poetvine.server.response.OtherUserDto;
 import com.example.poetvine.server.service.MapValidationErrorService;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -31,6 +34,23 @@ public class UserController {
     private final JwtService jwtService;
 
     private final MapValidationErrorService mapValidationErrorService;
+
+    @GetMapping
+    public ResponseEntity<?> getUsers(@AuthenticationPrincipal UserDetails userDetails) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        Set<BaseUserDto> users = userService.getUsers(userRequesting).stream()
+                .map(User::toOtherUserDto)
+                .collect(Collectors.toSet());
+
+        Map<String, Set<BaseUserDto>> response = new HashMap<>();
+        response.put("users", users);
+
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/profile/{username}")
     public ResponseEntity<?> getUserProfile(
@@ -133,6 +153,158 @@ public class UserController {
 
         Map<String, MyUserDto> response = new HashMap<>();
         response.put("user", deletedUser.toMyUserDto());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{username}/followers")
+    public ResponseEntity<?> getFollowers(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        Set<OtherUserDto> followers;
+        try {
+            followers = userService.getFollowers(userRequesting, username).stream()
+                    .map(User::toOtherUserDto)
+                    .collect(Collectors.toSet());
+
+        } catch (ResourceNotFoundException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, Set<OtherUserDto>> response = new HashMap<>();
+        response.put("followers", followers);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{username}/following")
+    public ResponseEntity<?> getUsersFollowing(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        Set<OtherUserDto> usersFollowing;
+        try {
+            usersFollowing = userService.getUsersFollowing(userRequesting, username).stream()
+                    .map(User::toOtherUserDto)
+                    .collect(Collectors.toSet());
+
+        } catch (ResourceNotFoundException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, Set<OtherUserDto>> response = new HashMap<>();
+        response.put("following", usersFollowing);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/profile/{username}/follow")
+    public ResponseEntity<?> followUser(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        try {
+            userService.followUser(userRequesting, username);
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Successfully followed " + username);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/profile/{username}/unfollow")
+    public ResponseEntity<?> unfollowUser(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        try {
+            userService.unfollowUser(userRequesting, username);
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Successfully unfollowed " + username);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/profile/{username}/remove-follower")
+    public ResponseEntity<?> removeFollower(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        try {
+            userService.removeFollower(userRequesting, username);
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Successfully removed " + username + " from followers list.");
 
         return ResponseEntity.ok(response);
     }
