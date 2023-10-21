@@ -1,7 +1,11 @@
 package com.example.poetvine.server.model;
 
+import com.example.poetvine.server.model.enumeration.PoemStatus;
 import com.example.poetvine.server.model.enumeration.Role;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
+import com.example.poetvine.server.response.BaseUserDto;
+import com.example.poetvine.server.response.MyUserDto;
+import com.example.poetvine.server.response.OtherUserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -71,7 +76,7 @@ public class User implements UserDetails {
     )
     private Set<Poem> poemsSaved = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Notification> notifications = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
@@ -88,6 +93,38 @@ public class User implements UserDetails {
         this.profileVisibilityPreference = profileVisibilityPreference;
         this.poemVisibilityPreference = poemVisibilityPreference;
         this.role = role;
+    }
+
+    public MyUserDto toMyUserDto() {
+        MyUserDto userDto = new MyUserDto();
+        userDto.setProfileImageName(profileImageName);
+        userDto.setUsername(username);
+        userDto.setEmail(email);
+        userDto.setNumberOfFollowers(followers.size());
+        userDto.setNumberOfUsersFollowing(following.size());
+        userDto.setBio(bio);
+        userDto.setNumberOfPoemsPublished(poemsWritten.stream()
+                .filter(poem -> poem.getPoemStatus().equals(PoemStatus.PUBLISHED))
+                .collect(Collectors.toSet())
+                .size());
+        userDto.setNumberOfPoemsSaved(poemsSaved.size());
+        userDto.setTopicsWrittenAbout(topicsWrittenAbout);
+        return userDto;
+    }
+
+    public OtherUserDto toOtherUserDto() {
+        OtherUserDto userDto = new OtherUserDto();
+        userDto.setProfileImageName(profileImageName);
+        userDto.setUsername(username);
+        userDto.setNumberOfFollowers(followers.size());
+        userDto.setNumberOfUsersFollowing(following.size());
+        userDto.setBio(bio);
+        userDto.setNumberOfPoemsPublished(poemsWritten.stream()
+                .filter(poem -> poem.getPoemStatus().equals(PoemStatus.PUBLISHED))
+                .collect(Collectors.toSet())
+                .size());
+        userDto.setTopicsWrittenAbout(topicsWrittenAbout);
+        return userDto;
     }
 
     public void followUser(User user) {
@@ -123,13 +160,13 @@ public class User implements UserDetails {
 
     public void removeNotification(Notification notification) {
         notifications.remove(notification);
-        notification.setRecipient(null);
+//        notification.setRecipient(null);
     }
 
     public void removeAllNotifications() {
-        for (Notification notification : notifications) {
-            notification.setRecipient(null);
-        }
+//        for (Notification notification : notifications) {
+//            notifications.remove(notification);
+//        }
         notifications.clear();
     }
 

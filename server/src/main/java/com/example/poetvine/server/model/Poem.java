@@ -2,6 +2,7 @@ package com.example.poetvine.server.model;
 
 import com.example.poetvine.server.annotation.CustomDateTimeFormat;
 import com.example.poetvine.server.model.enumeration.PoemStatus;
+import com.example.poetvine.server.response.PoemDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,11 +28,9 @@ public class Poem {
     @NotBlank
     private String title;
 
-    @NotNull
     @Column(length = Integer.MAX_VALUE)
     private String content;
 
-    @NotNull
     private String[] tags;
 
     @NotNull
@@ -58,6 +57,19 @@ public class Poem {
         this.tags = tags;
         this.author = author;
         this.poemStatus = poemStatus;
+    }
+
+    public PoemDto toPoemDto() {
+        PoemDto poemDto = new PoemDto();
+        poemDto.setId(poemId);
+        poemDto.setTitle(title);
+        poemDto.setContent(content);
+        poemDto.setAuthorUsername(author.getUsername());
+        poemDto.setCreatedAt(createdAt);
+        poemDto.setTags(tags);
+        poemDto.setNumberOfLikes(likes.size());
+        poemDto.setNumberOfComments(comments.size());
+        return poemDto;
     }
 
     public void addLike(Like like) {

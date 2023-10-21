@@ -1,7 +1,7 @@
 package com.example.poetvine.server.service;
 
 import com.example.poetvine.server.config.security.JwtService;
-import com.example.poetvine.server.exception.UserAlreadyExists;
+import com.example.poetvine.server.exception.UserAlreadyExistsException;
 import com.example.poetvine.server.model.User;
 import com.example.poetvine.server.model.enumeration.Role;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
@@ -10,8 +10,6 @@ import com.example.poetvine.server.payload.RegisterRequest;
 import com.example.poetvine.server.repository.UserRepository;
 import com.example.poetvine.server.response.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,16 +25,17 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final NotificationService notificationService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         // Check if username or email already exists
         Optional<User> userWithExistingUsername = userRepository.findByUsername(request.getUsername());
         Optional<User> userWithExistingEmail = userRepository.findByEmail(request.getEmail());
         if (userWithExistingUsername.isPresent()) {
-            throw new UserAlreadyExists("Username already exists");
+            throw new UserAlreadyExistsException("Username already exists");
         }
         if (userWithExistingEmail.isPresent()) {
-            throw new UserAlreadyExists("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
         User user = new User(
@@ -53,6 +52,10 @@ public class AuthenticationService {
 
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
+
+        String notificationMessage = "Welcome to Poetvine! Get ready to weave your words into beautiful" +
+                " verses and connect with fellow poets. Start sharing your poetry now!";
+        notificationService.createNotification(user, notificationMessage);
 
         return AuthenticationResponse
             .builder()

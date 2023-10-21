@@ -3,6 +3,7 @@ package com.example.poetvine.server.config.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+
+    private static final String SECRET_KEY = "lcGTHXJHaxf0nNZ8e2uObWV1p4pR+BqW1maHvGCfVLryS7fZxt7dif1pTiPyIir+BrdqmO7ozpGONkkoV4nmruUsO9Htz/nw8CdoQdBkyf0nSoRd0JEJvXzWrTf5bq36Frs0kGs1s1Pu3oWfR2nll6qNv3Yz5sQHzqkqoOCJfgGGFJt/OsRySLL1tgVExI7fQchcCfCLVmKTo7wGVSRfciwo3qOnjVbZ1C4zfhFgf4HmesrZYJLwFebYPqRThVSyzk4bk02SJWPNQ72/zw78XDryFZZJGKwnXGO9lFTH2eADyBdGfCgrVBTTfBFQbnrwmPEUOdGJYsQrDtiG0mvUd28yPYodt3yf+QCIzxU4mfk=";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -62,6 +65,7 @@ public class JwtService {
     }
 
     private Key getSigningKey() {
-        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
