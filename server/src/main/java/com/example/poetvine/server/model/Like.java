@@ -1,6 +1,7 @@
 package com.example.poetvine.server.model;
 
 import com.example.poetvine.server.annotation.CustomDateTimeFormat;
+import com.example.poetvine.server.response.LikeDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -34,6 +35,15 @@ public class Like {
     public Like(User likedByUser, Poem poemLiked) {
         this.likedByUser = likedByUser;
         this.poemLiked = poemLiked;
+    }
+
+    public LikeDto toLikeDto() {
+        LikeDto likeDto = new LikeDto();
+        likeDto.setLikeId(likeId);
+        likeDto.setUsername(likedByUser.getUsername());
+        likeDto.setPoemId(poemLiked.getPoemId());
+        likeDto.setLikedAt(likedAt);
+        return likeDto;
     }
 
     @Override

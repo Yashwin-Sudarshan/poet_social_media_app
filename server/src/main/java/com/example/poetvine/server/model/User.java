@@ -76,7 +76,7 @@ public class User implements UserDetails {
     )
     private Set<Poem> poemsSaved = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Notification> notifications = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
@@ -160,13 +160,13 @@ public class User implements UserDetails {
 
     public void removeNotification(Notification notification) {
         notifications.remove(notification);
-        notification.setRecipient(null);
+//        notification.setRecipient(null);
     }
 
     public void removeAllNotifications() {
-        for (Notification notification : notifications) {
-            notification.setRecipient(null);
-        }
+//        for (Notification notification : notifications) {
+//            notifications.remove(notification);
+//        }
         notifications.clear();
     }
 

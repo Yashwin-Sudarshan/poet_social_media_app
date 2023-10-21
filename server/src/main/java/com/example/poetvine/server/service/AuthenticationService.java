@@ -25,6 +25,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final NotificationService notificationService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         // Check if username or email already exists
@@ -51,6 +52,10 @@ public class AuthenticationService {
 
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
+
+        String notificationMessage = "Welcome to Poetvine! Get ready to weave your words into beautiful" +
+                " verses and connect with fellow poets. Start sharing your poetry now!";
+        notificationService.createNotification(user, notificationMessage);
 
         return AuthenticationResponse
             .builder()

@@ -26,6 +26,8 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final NotificationService notificationService;
+
     public User findByUsername(String username) {
         if (userRepository.findByUsername(username).isPresent()) return userRepository.findByUsername(username).get();
         else throw new ResourceNotFoundException("User not found.");
@@ -133,6 +135,10 @@ public class UserService {
 
                 userRepository.save(userRequesting);
                 userRepository.save(userToFollow);
+
+                // Notify userToFollow
+                String message = userRequesting.getUsername() + " started following you.";
+                notificationService.createNotification(userToFollow, message);
             }
             else throw new UserNotAuthorisedException("User is not authorised to perform function.");
         }

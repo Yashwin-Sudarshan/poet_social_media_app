@@ -308,4 +308,68 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/profile/{username}/followers/number")
+    public ResponseEntity<?> getNumberOfFollowers(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        int numberOfFollowers;
+        try {
+            numberOfFollowers = userService.getFollowers(userRequesting, username).size();
+
+        } catch (ResourceNotFoundException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, Integer> response = new HashMap<>();
+        response.put("number_of_followers", numberOfFollowers);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{username}/following/number")
+    public ResponseEntity<?> getNumberOfUsersFollowing(
+            @PathVariable String username,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User userRequesting = null;
+        if (userDetails != null) {
+            userRequesting = userService.findByUsername(userDetails.getUsername());
+        }
+
+        int numberOfUsersFollowing;
+        try {
+            numberOfUsersFollowing = userService.getUsersFollowing(userRequesting, username).size();
+
+        } catch (ResourceNotFoundException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (UserNotAuthorisedException e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, Integer> response = new HashMap<>();
+        response.put("number_of_users_following", numberOfUsersFollowing);
+
+        return ResponseEntity.ok(response);
+    }
 }

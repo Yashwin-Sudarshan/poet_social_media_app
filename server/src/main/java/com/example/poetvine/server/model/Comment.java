@@ -1,6 +1,7 @@
 package com.example.poetvine.server.model;
 
 import com.example.poetvine.server.annotation.CustomDateTimeFormat;
+import com.example.poetvine.server.response.CommentDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,5 +41,15 @@ public class Comment {
         this.commentedByUser = commentedByUser;
         this.poemCommentedOn = poemCommentedOn;
         this.message = message;
+    }
+
+    public CommentDto toCommentDto() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setCommentId(commentId);
+        commentDto.setUsername(commentedByUser.getUsername());
+        commentDto.setPoemId(poemCommentedOn.getPoemId());
+        commentDto.setMessage(message);
+        commentDto.setCommentedAt(commentedAt);
+        return commentDto;
     }
 }

@@ -3,16 +3,22 @@ package com.example.poetvine.server.service;
 import com.example.poetvine.server.exception.PoemAlreadyExistsException;
 import com.example.poetvine.server.exception.ResourceNotFoundException;
 import com.example.poetvine.server.exception.UserNotAuthorisedException;
+import com.example.poetvine.server.model.Comment;
+import com.example.poetvine.server.model.Like;
 import com.example.poetvine.server.model.Poem;
 import com.example.poetvine.server.model.User;
 import com.example.poetvine.server.model.enumeration.Filter;
 import com.example.poetvine.server.model.enumeration.PoemStatus;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
+import com.example.poetvine.server.payload.CommentRequest;
 import com.example.poetvine.server.payload.CreateOrEditPoemRequest;
+import com.example.poetvine.server.repository.CommentRepository;
+import com.example.poetvine.server.repository.LikeRepository;
 import com.example.poetvine.server.repository.PoemRepository;
 import com.example.poetvine.server.repository.UserRepository;
 import com.example.poetvine.server.response.PoemDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +32,12 @@ public class PoemService {
     private final PoemRepository poemRepository;
 
     private final UserRepository userRepository;
+
+    private final LikeRepository likeRepository;
+
+    private final CommentRepository commentRepository;
+
+    private final NotificationService notificationService;
 
     /**
      *  Returns a poem with the specified id, if the authenticated or unauthenticated user is allowed
@@ -258,5 +270,122 @@ public class PoemService {
         return (int) poem.getLikes().stream()
                 .filter(like -> like.getLikedAt().isAfter(dateTime))
                 .count();
+    }
+
+    public Set<Like> getPoemLikes(Long poemId, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+        return poem.getLikes();
+    }
+
+    public Set<Comment> getPoemComments(Long poemId, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+        return poem.getComments();
+    }
+
+    public Like likePoem(Long poemId, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+
+        boolean poemHasAlreadyBeenLikedByUser = false;
+        for (Like like: poem.getLikes()) {
+            if (like.getLikedByUser().equals(userRequesting)) {
+                poemHasAlreadyBeenLikedByUser = true;
+                break;
+            }
+        }
+        if (poemHasAlreadyBeenLikedByUser) throw new UserNotAuthorisedException("User already likes poem");
+
+        Like like = new Like(userRequesting, poem);
+        like.setLikedAt(LocalDateTime.now());
+
+        poem.addLike(like);
+        likeRepository.save(like);
+        poemRepository.save(poem);
+
+        String notificationMessage = userRequesting.getUsername() + " liked your poem: " + poem.getTitle();
+        notificationService.createNotification(poem.getAuthor(), notificationMessage);
+
+        return like;
+    }
+
+    public Like unlikePoem(Long poemId, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+        Like likeDeleted = null;
+
+        for (Like like: poem.getLikes()) {
+            if (like.getLikedByUser().equals(userRequesting)) {
+                likeDeleted = like;
+                poem.removeLike(like);
+                likeRepository.delete(like);
+                break;
+            }
+        }
+
+        if (likeDeleted == null) throw new UserNotAuthorisedException("User has already not liked poem.");
+
+        return likeDeleted;
+    }
+
+    public Comment commentOnPoem(Long poemId, CommentRequest request, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+        Comment comment = new Comment(userRequesting, poem, request.getMessage());
+        comment.setCommentedAt(LocalDateTime.now());
+
+        poem.addComment(comment);
+        commentRepository.save(comment);
+        poemRepository.save(poem);
+
+        String notificationMessage = userRequesting.getUsername() + " commented " + comment.getMessage() +
+                " on your poem " + poem.getTitle();
+        notificationService.createNotification(poem.getAuthor(), notificationMessage);
+
+        return comment;
+    }
+
+    public Comment editComment(Long poemId, Long commentId, CommentRequest request, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+        Comment comment = null;
+        if (commentRepository.findById(commentId).isPresent()) comment = commentRepository.findById(commentId).get();
+        else throw new ResourceNotFoundException("Comment not found.");
+
+        if (comment.getCommentedByUser().equals(userRequesting)) comment.setMessage(request.getMessage());
+        else throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        commentRepository.save(comment);
+        return comment;
+    }
+
+    public Comment deleteComment(Long poemId, Long commentId, User userRequesting) {
+        if (userRequesting == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        Poem poem = getPoem(poemId, userRequesting);
+        Comment commentDeleted = null;
+
+        for (Comment comment: poem.getComments()) {
+            if (comment.getCommentedByUser().equals(userRequesting)) {
+                commentDeleted = comment;
+
+                poem.removeComment(commentDeleted);
+                commentRepository.delete(commentDeleted);
+                poemRepository.save(poem);
+
+                return commentDeleted;
+            }
+        }
+
+        if (commentDeleted == null) throw new UserNotAuthorisedException("User is not allowed to perform function.");
+
+        return commentDeleted;
     }
 }
