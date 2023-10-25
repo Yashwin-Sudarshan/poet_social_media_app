@@ -3,3 +3,7 @@
 @tailwind utilities;
 
 @import url("../styles/theme.css");
+
+body {
+  font-family: ptSerif sans-serif;
+}
