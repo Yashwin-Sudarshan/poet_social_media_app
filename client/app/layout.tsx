@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 // eslint-disable-next-line camelcase
 import { PT_Serif } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/context/ThemeProvider";
 
 const ptSerif = PT_Serif({
   subsets: ["latin"],
@@ -22,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${ptSerif.variable}`}>{children}</body>
+      <body className={`${ptSerif.variable}`}>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
