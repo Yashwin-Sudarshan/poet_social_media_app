@@ -6,9 +6,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Theme from "./Theme";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
+import { useTheme } from "@/context/ThemeProvider";
 
 const DesktopAndTabletNavbar = () => {
   const pathname = usePathname();
+  const { mode } = useTheme();
+
   const isLinkActive = (link: string) => {
     return pathname.includes(link) || pathname === link;
   };
@@ -48,12 +51,21 @@ const DesktopAndTabletNavbar = () => {
         </Link>
       </div>
       <Link href="/poems" className="absolute left-1/2 -translate-x-1/2">
-        <Image
-          src="/assets/images/poetvine-logo.svg"
-          alt="poetvine logo"
-          width={94}
-          height={94}
-        />
+        {mode === "light" ? (
+          <Image
+            src="/assets/images/poetvine-logo.svg"
+            alt="poetvine logo"
+            width={94}
+            height={94}
+          />
+        ) : (
+          <Image
+            src="/assets/images/poetvine-logo-dark.svg"
+            alt="poetvine logo"
+            width={94}
+            height={94}
+          />
+        )}
       </Link>
       <div className="flex items-center justify-between gap-6 max-[1280px]:gap-2">
         <div className="px-2 min-[800px]:px-6">
@@ -79,6 +91,8 @@ const DesktopAndTabletNavbar = () => {
 
 const MobileNavBar = () => {
   const pathname = usePathname();
+  const { mode } = useTheme();
+
   const isLinkActive = (link: string) => {
     return pathname.includes(link) || pathname === link;
   };
@@ -105,27 +119,54 @@ const MobileNavBar = () => {
     <>
       <div className="flex items-center justify-between px-[20px] py-2">
         <Link href="/poems">
-          <Image
-            src="/assets/icons/poetvine-book.svg"
-            alt="poetvine logo"
-            width={32}
-            height={32}
-          />
+          {mode === "light" ? (
+            <Image
+              src="/assets/icons/poetvine-book.svg"
+              alt="poetvine logo"
+              width={32}
+              height={32}
+            />
+          ) : (
+            <Image
+              src="/assets/icons/poetvine-book-dark.svg"
+              alt="poetvine logo"
+              width={32}
+              height={32}
+            />
+          )}
         </Link>
         <Theme />
-        {isMenuOpen ? (
+        {isMenuOpen && mode === "light" ? (
           <Image
             src="/assets/icons/close.svg"
-            alt="poetvine logo"
+            alt="close menu"
             width={34}
             height={34}
             className="cursor-pointer"
             onClick={() => setIsMenuOpen(false)}
           />
-        ) : (
+        ) : isMenuOpen && mode === "dark" ? (
+          <Image
+            src="/assets/icons/close-dark.svg"
+            alt="close menu"
+            width={34}
+            height={34}
+            className="cursor-pointer"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        ) : !isMenuOpen && mode === "light" ? (
           <Image
             src="/assets/icons/hamburger.svg"
-            alt="poetvine logo"
+            alt="menu icon"
+            width={34}
+            height={34}
+            className="cursor-pointer"
+            onClick={() => setIsMenuOpen(true)}
+          />
+        ) : (
+          <Image
+            src="/assets/icons/hamburger-dark.svg"
+            alt="menu icon"
             width={34}
             height={34}
             className="cursor-pointer"
@@ -139,7 +180,7 @@ const MobileNavBar = () => {
         <div
           ref={menuRef}
           className="absolute left-1/2 flex w-full -translate-x-1/2 flex-col gap-7 border-[1px] border-y-brown/30 bg-pale py-5 
-          text-center dark:border-b-dark-pale dark:bg-gray-dark"
+          text-center dark:border-y-dark-pale dark:bg-gray-dark"
         >
           <Link
             href="/about"
