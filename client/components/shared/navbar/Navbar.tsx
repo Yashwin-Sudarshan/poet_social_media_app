@@ -21,31 +21,22 @@ const DesktopAndTabletNavbar = () => {
       <div className="flex items-center justify-between gap-10 min-[800px]:gap-14 min-[1180px]:gap-20">
         <Link
           href="/about"
-          className={`${
-            isLinkActive("about")
-              ? "text-xl font-bold text-brown underline dark:text-pale min-[920px]:text-2xl"
-              : "text-xl font-bold text-brown dark:text-pale min-[920px]:text-2xl"
-          }`}
+          className={`text-xl font-bold text-brown dark:text-pale min-[920px]:text-2xl
+            ${isLinkActive("about") ? "underline" : ""}`}
         >
           About
         </Link>
         <Link
           href="/poems"
-          className={`${
-            isLinkActive("poems")
-              ? "text-xl font-bold text-brown underline dark:text-pale min-[920px]:text-2xl"
-              : "text-xl font-bold text-brown dark:text-pale min-[920px]:text-2xl"
-          }`}
+          className={`text-xl font-bold text-brown dark:text-pale min-[920px]:text-2xl
+            ${isLinkActive("poems") ? "underline" : ""}`}
         >
           Poems
         </Link>
         <Link
           href="/poets"
-          className={`${
-            isLinkActive("poets")
-              ? "text-xl font-bold text-brown underline dark:text-pale min-[920px]:text-2xl"
-              : "text-xl font-bold text-brown dark:text-pale min-[920px]:text-2xl"
-          }`}
+          className={`text-xl font-bold text-brown dark:text-pale min-[920px]:text-2xl
+            ${isLinkActive("poets") ? "underline" : ""}`}
         >
           Poets
         </Link>
