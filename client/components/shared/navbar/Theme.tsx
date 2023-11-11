@@ -34,7 +34,10 @@ const Theme = () => {
             />
           )}
         </MenubarTrigger>
-        <MenubarContent className="absolute right-[-5.8rem] mt-4 min-w-[150px] rounded bg-pale dark:border-gray-dark dark:bg-gray-dark">
+        <MenubarContent
+          className="absolute right-[-5.8rem] mt-4 min-w-[150px] rounded border-brown-textfield 
+        bg-pale dark:border-gray-dark-textfield dark:bg-gray-dark"
+        >
           <MenubarItem
             className={`flex cursor-pointer items-center gap-4 py-3 text-brown
             focus:bg-brown-textfield dark:text-pale dark:focus:bg-gray-dark-textfield
@@ -65,7 +68,8 @@ const Theme = () => {
           </MenubarItem>
           <MenubarItem
             className={`flex cursor-pointer items-center gap-4 py-3 text-brown
-           focus:bg-brown-textfield dark:text-pale dark:focus:bg-gray-dark-textfield
+           focus:bg-brown-textfield active:bg-brown-textfield dark:text-pale
+             dark:focus:bg-gray-dark-textfield dark:active:bg-gray-dark-textfield
              ${mode === "dark" ? "bg-gray-dark-textfield" : "bg-pale"}`}
             onClick={() => {
               setMode("dark");
