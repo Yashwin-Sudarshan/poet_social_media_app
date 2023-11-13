@@ -1,13 +1,11 @@
 import React from "react";
-import Searchbar from "@/components/shared/search/Searchbar";
-import FilterGroup from "@/components/shared/search/FilterGroup";
 import PoemCard from "@/components/shared/PoemCard";
 
 // Remove this once api is integrated
 import { MockPoemData, MockTrendingPoetsData } from "@/constants";
-import { Button } from "@/components/ui/button";
 import UserCard from "@/components/shared/UserCard";
 import Link from "next/link";
+import PoemsLayout from "@/components/shared/PoemsLayout";
 
 const Page = () => {
   return (
@@ -16,52 +14,7 @@ const Page = () => {
       md:max-[860px]:justify-center lg:justify-center lg:gap-4 xl:gap-x-[30px] min-[1330px]:mx-20
       min-[1440px]:mx-[140px]"
     >
-      <div
-        className="max-[749px]:w-full min-[750px]:max-w-[600px] min-[750px]:border-r min-[750px]:border-r-brown/30 
-          min-[750px]:dark:border-r-dark-pale min-[750px]:max-[860px]:w-1/2 min-[860px]:max-lg:w-3/4 
-          min-[1110px]:max-w-[680px] xl:max-w-[763px]"
-      >
-        <div className="max-w-[664px] pt-10 max-[430px]:pt-5 min-[750px]:mr-5">
-          <h1 className="text-5xl font-bold text-brown dark:text-pale max-[430px]:text-2xl">
-            Poems
-          </h1>
-          <Searchbar placeholder="Search by author, title, tags, or content..." />
-          <FilterGroup />
-        </div>
-        <div
-          className="min-xl:gap-7 mt-20 flex flex-col justify-center gap-5 max-[750px]:items-center
-            min-[750px]:flex-row min-[750px]:flex-wrap lg:justify-start"
-        >
-          {MockPoemData.map((poem, index) => (
-            <PoemCard
-              key={index}
-              id={poem.id}
-              title={poem.title}
-              content={poem.content}
-              author_username={poem.author_username}
-              created_at={poem.created_at}
-              tags={poem.tags}
-              number_of_likes={poem.number_of_likes}
-              number_of_comments={poem.number_of_comments}
-              hasLiked={false}
-            />
-          ))}
-        </div>
-        <div
-          className="text-center max-[376px]:justify-center max-[360px]:flex
-          min-[1024px]:mr-4 min-[1295px]:mr-9"
-          // className="flex justify-center"
-        >
-          <Button
-            className="mb-40 mt-20 h-14 w-[280px] rounded-[10px] border-2 border-brown text-2xl font-bold
-          text-brown hover:border-brown hover:bg-brown hover:text-pale dark:border-pale dark:text-pale
-          dark:hover:border-pale dark:hover:bg-pale dark:hover:text-gray-dark max-[430px]:mb-0 max-[430px]:mt-10
-          max-[430px]:text-xl min-[500px]:max-[750px]:w-[320px] min-[749px]:max-lg:w-5/6 lg:w-[364px]"
-          >
-            See More
-          </Button>
-        </div>
-      </div>
+      <PoemsLayout />
       <div
         className="max-[750px]:flex max-[750px]:flex-col max-[750px]:items-center
          max-[750px]:gap-y-[30px] max-[430px]:mt-20 min-[750px]:max-[1040px]:ml-5"
