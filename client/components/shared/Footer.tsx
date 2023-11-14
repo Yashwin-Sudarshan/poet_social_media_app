@@ -17,8 +17,8 @@ const Footer = () => {
 
   return (
     <footer
-      className="flex w-full flex-col items-center justify-evenly bg-pale
-        p-10 dark:bg-gray-dark sm:flex-row"
+      className="flex w-full flex-col items-center justify-evenly border-t-[1px]
+        border-t-brown/30 bg-pale p-10 dark:border-t-dark-pale dark:bg-gray-dark sm:flex-row"
     >
       <div className="flex flex-col items-center">
         <Link href="/poems">

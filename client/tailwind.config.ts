@@ -22,7 +22,7 @@ const config: Config = {
         "brown-textfield": "#E8CDAF",
         pale: "#F8F0D9",
         "gray-dark": "#1E1E1E",
-        "gray-dark-textfield": "#75706B",
+        "gray-dark-textfield": "#4B4B4B",
         "dark-pale": "#3A3A3A",
       },
       fontFamily: {
