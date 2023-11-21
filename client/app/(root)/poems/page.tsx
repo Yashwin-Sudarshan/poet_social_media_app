@@ -2,12 +2,17 @@ import React from "react";
 import PoemCard from "@/components/shared/PoemCard";
 
 // Remove this once api is integrated
-import { MockPoemData, MockTrendingPoetsData } from "@/constants";
+import { MockTrendingPoetsData } from "@/constants";
 import UserCard from "@/components/shared/UserCard";
 import Link from "next/link";
 import PoemsLayout from "@/components/shared/PoemsLayout";
+import { getFeaturedPoem } from "@/lib/actions/poem.action";
+import { formatTimestamp } from "@/lib/utils";
 
-const Page = () => {
+const Page = async () => {
+
+  const featuredPoem = await getFeaturedPoem();
+
   return (
     <div
       className="mx-5 flex max-[1040px]:gap-0 max-[749px]:flex-col min-[500px]:mx-10
@@ -25,14 +30,14 @@ const Page = () => {
           </h2>
           <div className="mt-10 max-[750px]:mt-5">
             <PoemCard
-              id={MockPoemData[0].id}
-              title={MockPoemData[0].title}
-              content={MockPoemData[0].content}
-              author_username={MockPoemData[0].author_username}
-              created_at={MockPoemData[0].created_at}
-              tags={MockPoemData[0].tags}
-              number_of_likes={MockPoemData[0].number_of_likes}
-              number_of_comments={MockPoemData[0].number_of_comments}
+              id={featuredPoem.id}
+              title={featuredPoem.title}
+              content={featuredPoem.content}
+              author_username={featuredPoem.author_username}
+              created_at={formatTimestamp(featuredPoem.created_at)}
+              tags={featuredPoem.tags}
+              number_of_likes={featuredPoem.number_of_likes}
+              number_of_comments={featuredPoem.number_of_comments}
               hasLiked={false}
             />
           </div>
