@@ -10,11 +10,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Searchbar from "./search/Searchbar";
-import { MockPoemData } from "@/constants";
 import PoemCard from "./PoemCard";
 import { Button } from "../ui/button";
 
-const PoemsLayout = () => {
+interface Props {
+  filteredPoems: {
+    id: number;
+    title: string;
+    content: string;
+    author_username: string;
+    created_at: Date;
+    tags: string[];
+    number_of_likes: number;
+    number_of_comments: number;
+  }[]
+}
+
+const PoemsLayout = ({ filteredPoems }: Props) => {
   const [columnPreference, setColumnPreference] = useState("double");
 
   const SearchFilterGroup = (type: string) => {
@@ -211,7 +223,7 @@ const PoemsLayout = () => {
             : ""
         }
       >
-        {MockPoemData.map((poem, index) => (
+        {filteredPoems.map((poem, index) => (
           <PoemCard
             key={index}
             id={poem.id}

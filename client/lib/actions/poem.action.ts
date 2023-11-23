@@ -12,3 +12,16 @@ export async function getFeaturedPoem() {
 
     return result.poems[0];
 }
+
+export async function getPoemsByFilter() {
+    const result = await fetch(process.env.POETVINE_API_URL + "/poems?filter=TOP_THIS_WEEK", {
+        method: "GET",
+        // headers: {
+        //     "Authorization": "Bearer <token>"
+        // },
+        cache: "no-store"
+    }).then(response => response.json())
+    .catch((error) => console.log(error))
+
+    return result.poems;
+}

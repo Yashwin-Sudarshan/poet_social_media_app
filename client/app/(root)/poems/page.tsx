@@ -6,11 +6,11 @@ import { MockTrendingPoetsData } from "@/constants";
 import UserCard from "@/components/shared/UserCard";
 import Link from "next/link";
 import PoemsLayout from "@/components/shared/PoemsLayout";
-import { getFeaturedPoem } from "@/lib/actions/poem.action";
+import { getFeaturedPoem, getPoemsByFilter } from "@/lib/actions/poem.action";
 import { formatTimestamp } from "@/lib/utils";
 
 const Page = async () => {
-
+  const filteredPoems = await getPoemsByFilter();
   const featuredPoem = await getFeaturedPoem();
 
   return (
@@ -19,7 +19,9 @@ const Page = async () => {
       md:max-[860px]:justify-center lg:justify-center lg:gap-4 xl:gap-x-[30px] min-[1330px]:mx-20
       min-[1440px]:mx-[140px]"
     >
-      <PoemsLayout />
+      <PoemsLayout 
+        filteredPoems={filteredPoems}
+      />
       <div
         className="max-[750px]:flex max-[750px]:flex-col max-[750px]:items-center
          max-[750px]:gap-y-[30px] max-[430px]:mt-20 min-[750px]:max-[1040px]:ml-5"
