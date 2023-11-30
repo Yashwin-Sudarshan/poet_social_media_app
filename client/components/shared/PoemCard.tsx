@@ -29,11 +29,11 @@ const PoemCard = ({
   return (
     <>
       <div
-        className="w-[280px] rounded-[10px] bg-brown px-6 text-pale 
-          shadow-default dark:bg-dark-pale dark:shadow-none min-[500px]:max-[750px]:w-[353px]
-          min-[500px]:max-[750px]:px-10 md:max-[860px]:w-[320px] md:max-[860px]:px-8 
-          min-[860px]:max-lg:w-[353px] min-[860px]:max-lg:px-10 lg:w-[280px] 
-          min-[1110px]:w-[320px] min-[1110px]:px-8 xl:w-[353px] xl:px-10"
+        className="relative w-[280px] rounded-[10px] bg-brown px-6 
+          text-pale shadow-default dark:bg-dark-pale dark:shadow-none
+          min-[500px]:max-[750px]:w-[353px] min-[500px]:max-[750px]:px-10 md:max-[860px]:w-[320px] 
+          md:max-[860px]:px-8 min-[860px]:max-lg:w-[353px] min-[860px]:max-lg:px-10 
+          lg:w-[280px] min-[1110px]:w-[320px] min-[1110px]:px-8 xl:w-[353px] xl:px-10"
       >
         <h2 className="py-5 text-center text-[32px] font-bold max-[430px]:text-2xl">
           {title}

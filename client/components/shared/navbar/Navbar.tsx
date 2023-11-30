@@ -170,8 +170,8 @@ const MobileNavBar = () => {
       {isMenuOpen && (
         <div
           ref={menuRef}
-          className="absolute left-1/2 flex w-full -translate-x-1/2 flex-col gap-7 border-[1px] border-y-brown/30 bg-pale py-5 
-          text-center dark:border-y-dark-pale dark:bg-gray-dark"
+          className="absolute left-1/2 z-10 flex w-full -translate-x-1/2 flex-col gap-7 border-[1px] border-y-brown/30 bg-pale 
+          py-5 text-center dark:border-y-dark-pale dark:bg-gray-dark"
         >
           <Link
             href="/about"

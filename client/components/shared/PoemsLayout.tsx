@@ -12,6 +12,8 @@ import {
 import Searchbar from "./search/Searchbar";
 import PoemCard from "./PoemCard";
 import { Button } from "../ui/button";
+import { useSearchParams, useRouter } from "next/navigation";
+import { formUrlQuery, formatTimestamp } from "@/lib/utils";
 
 interface Props {
   filteredPoems: {
@@ -23,16 +25,39 @@ interface Props {
     tags: string[];
     number_of_likes: number;
     number_of_comments: number;
-  }[]
+  }[];
 }
 
 const PoemsLayout = ({ filteredPoems }: Props) => {
   const [columnPreference, setColumnPreference] = useState("double");
 
   const SearchFilterGroup = (type: string) => {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
     const [isTopFilterSelected, setIsTopFilterSelected] = useState(true);
     const [isRecentFilterSelected, setIsRecentFilterSelected] = useState(false);
     // const [specificTopFilter, setSpecificTopFilter] = useState("");
+
+    const handleSelectUpdateParams = (value: string) => {
+      const newUrl = formUrlQuery({
+        params: searchParams.toString(),
+        key: "filter",
+        value,
+      });
+
+      router.push(newUrl, { scroll: false });
+    };
+
+    const handleRecentUpdateParams = () => {
+      const newUrl = formUrlQuery({
+        params: searchParams.toString(),
+        key: "filter",
+        value: "RECENT",
+      });
+
+      router.push(newUrl, { scroll: false });
+    };
 
     return (
       <>
@@ -55,6 +80,7 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
 
           <Select
             disabled={isRecentFilterSelected}
+            onValueChange={handleSelectUpdateParams}
             defaultValue="TOP_THIS_WEEK"
           >
             <SelectTrigger
@@ -70,6 +96,7 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
             >
               <SelectGroup>
                 <SelectItem
+                  key="TOP_TODAY"
                   value="TOP_TODAY"
                   className="text-lg focus:bg-brown-textfield
                       dark:focus:bg-gray-dark-textfield
@@ -78,6 +105,7 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
                   Today
                 </SelectItem>
                 <SelectItem
+                  key="TOP_THIS_WEEK"
                   value="TOP_THIS_WEEK"
                   className="text-lg focus:bg-brown-textfield
                       dark:focus:bg-gray-dark-textfield
@@ -86,6 +114,7 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
                   This week
                 </SelectItem>
                 <SelectItem
+                  key="TOP_THIS_MONTH"
                   value="TOP_THIS_MONTH"
                   className="text-lg focus:bg-brown-textfield
                       dark:focus:bg-gray-dark-textfield
@@ -108,6 +137,8 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
             if (!isRecentFilterSelected) {
               setIsRecentFilterSelected(true);
               setIsTopFilterSelected(false);
+
+              handleRecentUpdateParams();
             }
           }}
         >
@@ -207,51 +238,106 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
           Poems
         </h1>
 
-        <Searchbar placeholder="Search by author, title, tags, or content..." />
+        <Searchbar
+          placeholder="Search by author, title, tags, or content..."
+          route="/poems"
+        />
 
         <div className="mt-5 flex items-center">
           {SearchFilterGroup("poems")}
           {ColumnLayoutSelectorGroup()}
         </div>
       </div>
-      <div
-        className={
-          columnPreference === "double"
-            ? "min-xl:gap-7 mt-20 flex flex-col justify-center gap-5 max-[750px]:items-center min-[750px]:flex-row min-[750px]:flex-wrap lg:justify-start"
-            : columnPreference === "single"
-            ? "mt-20 flex flex-col items-center justify-center gap-5 min-[1024px]:pr-4 min-[1030px]:max-[1125px]:w-[599px] min-[1110px]:w-[680px] xl:w-[763px] min-[1295px]:pr-9"
-            : ""
-        }
-      >
-        {filteredPoems.map((poem, index) => (
-          <PoemCard
-            key={index}
-            id={poem.id}
-            title={poem.title}
-            content={poem.content}
-            author_username={poem.author_username}
-            created_at={poem.created_at}
-            tags={poem.tags}
-            number_of_likes={poem.number_of_likes}
-            number_of_comments={poem.number_of_comments}
-            hasLiked={false}
-          />
-        ))}
-      </div>
-      <div
-        className="text-center max-[376px]:justify-center max-[360px]:flex
+
+      {filteredPoems.length === 0 && (
+        <div className="mt-20 min-[1030px]:max-[1125px]:w-[599px] min-[1110px]:w-[680px] xl:w-[763px]">
+          <h2 className="max-w-[664px] text-center text-[32px] text-brown dark:text-pale max-[430px]:text-xl min-[750px]:mr-5">
+            No poems found
+          </h2>
+        </div>
+      )}
+
+      {columnPreference === "double" && filteredPoems.length > 1 ? (
+        <div
+          className="min-xl:gap-7 mt-20 flex flex-col justify-center gap-5 max-[750px]:items-center min-[750px]:flex-row min-[750px]:flex-wrap
+        lg:justify-start min-[1024px]:pr-4
+        min-[1295px]:pr-[35px]"
+        >
+          <div className="flex flex-col gap-5">
+            {filteredPoems
+              .slice(0, Math.ceil(filteredPoems.length / 2))
+              .map((poem, index) => (
+                <PoemCard
+                  key={index}
+                  id={poem.id}
+                  title={poem.title}
+                  content={poem.content}
+                  author_username={poem.author_username}
+                  created_at={formatTimestamp(poem.created_at.toString())}
+                  tags={poem.tags}
+                  number_of_likes={poem.number_of_likes}
+                  number_of_comments={poem.number_of_comments}
+                  hasLiked={false}
+                />
+              ))}
+          </div>
+          <div className="flex flex-col gap-5">
+            {filteredPoems
+              .slice(Math.ceil(filteredPoems.length / 2))
+              .map((poem, index) => (
+                <PoemCard
+                  key={index}
+                  id={poem.id}
+                  title={poem.title}
+                  content={poem.content}
+                  author_username={poem.author_username}
+                  created_at={formatTimestamp(poem.created_at.toString())}
+                  tags={poem.tags}
+                  number_of_likes={poem.number_of_likes}
+                  number_of_comments={poem.number_of_comments}
+                  hasLiked={false}
+                />
+              ))}
+          </div>
+        </div>
+      ) : (
+        <div
+          className="mt-20 flex flex-col items-center justify-center gap-5 min-[1024px]:pr-4 
+          min-[1030px]:max-[1125px]:w-[599px] min-[1110px]:w-[680px] xl:w-[763px] min-[1295px]:pr-9"
+        >
+          {filteredPoems.map((poem, index) => (
+            <PoemCard
+              key={index}
+              id={poem.id}
+              title={poem.title}
+              content={poem.content}
+              author_username={poem.author_username}
+              created_at={poem.created_at}
+              tags={poem.tags}
+              number_of_likes={poem.number_of_likes}
+              number_of_comments={poem.number_of_comments}
+              hasLiked={false}
+            />
+          ))}
+        </div>
+      )}
+
+      {filteredPoems.length > 0 && (
+        <div
+          className="text-center max-[376px]:justify-center max-[360px]:flex
           min-[1024px]:mr-4 min-[1295px]:mr-9"
-        // className="flex justify-center"
-      >
-        <Button
-          className="mb-40 mt-20 h-14 w-[280px] rounded-[10px] border-2 border-brown text-2xl font-bold
+          // className="flex justify-center"
+        >
+          <Button
+            className="mb-40 mt-20 h-14 w-[280px] rounded-[10px] border-2 border-brown text-2xl font-bold
           text-brown hover:border-brown hover:bg-brown hover:text-pale dark:border-pale dark:text-pale
           dark:hover:border-pale dark:hover:bg-pale dark:hover:text-gray-dark max-[430px]:mb-0 max-[430px]:mt-10
           max-[430px]:text-xl min-[500px]:max-[750px]:w-[320px] min-[749px]:max-lg:w-5/6 lg:w-[364px]"
-        >
-          See More
-        </Button>
-      </div>
+          >
+            See More
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
