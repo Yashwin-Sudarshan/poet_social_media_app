@@ -26,15 +26,29 @@ interface Props {
     number_of_likes: number;
     number_of_comments: number;
   }[];
+  numAllPoems: number;
 }
 
-const PoemsLayout = ({ filteredPoems }: Props) => {
+const PoemsLayout = ({ filteredPoems, numAllPoems }: Props) => {
   const [columnPreference, setColumnPreference] = useState("double");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  let [page, setPage] = useState(1);
+
+  const handlePaginationParams = () => {
+    setPage(++page);
+
+    const newUrl = formUrlQuery({
+      params: searchParams.toString(),
+      key: "page",
+      value: page.toString(),
+    });
+
+    router.push(newUrl, { scroll: false });
+  };
 
   const SearchFilterGroup = (type: string) => {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-
     const [isTopFilterSelected, setIsTopFilterSelected] = useState(true);
     const [isRecentFilterSelected, setIsRecentFilterSelected] = useState(false);
     // const [specificTopFilter, setSpecificTopFilter] = useState("");
@@ -225,8 +239,6 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
     );
   };
 
-  console.log(`Column preference - ${columnPreference}`);
-
   return (
     <div
       className="max-[749px]:w-full min-[750px]:max-w-[600px] min-[750px]:border-r min-[750px]:border-r-brown/30 
@@ -259,9 +271,9 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
 
       {columnPreference === "double" && filteredPoems.length > 1 ? (
         <div
-          className="min-xl:gap-7 mt-20 flex flex-col justify-center gap-5 max-[750px]:items-center min-[750px]:flex-row min-[750px]:flex-wrap
-        lg:justify-start min-[1024px]:pr-4
-        min-[1295px]:pr-[35px]"
+          className="min-xl:gap-7 my-20 flex flex-col justify-center gap-5 max-[750px]:items-center max-[430px]:mb-0 min-[750px]:flex-row
+        min-[750px]:flex-wrap lg:justify-start
+        min-[1024px]:pr-4 min-[1295px]:pr-[35px]"
         >
           <div className="flex flex-col gap-5">
             {filteredPoems
@@ -302,8 +314,9 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
         </div>
       ) : (
         <div
-          className="mt-20 flex flex-col items-center justify-center gap-5 min-[1024px]:pr-4 
-          min-[1030px]:max-[1125px]:w-[599px] min-[1110px]:w-[680px] xl:w-[763px] min-[1295px]:pr-9"
+          className="my-20 flex flex-col items-center justify-center gap-5
+          max-[430px]:mb-0 min-[1024px]:pr-4 min-[1030px]:max-[1125px]:w-[599px] min-[1110px]:w-[680px]
+          xl:w-[763px] min-[1295px]:pr-9"
         >
           {filteredPoems.map((poem, index) => (
             <PoemCard
@@ -322,7 +335,7 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
         </div>
       )}
 
-      {filteredPoems.length > 0 && (
+      {numAllPoems > page * 6 && filteredPoems.length === page * 6 && (
         <div
           className="text-center max-[376px]:justify-center max-[360px]:flex
           min-[1024px]:mr-4 min-[1295px]:mr-9"
@@ -333,6 +346,7 @@ const PoemsLayout = ({ filteredPoems }: Props) => {
           text-brown hover:border-brown hover:bg-brown hover:text-pale dark:border-pale dark:text-pale
           dark:hover:border-pale dark:hover:bg-pale dark:hover:text-gray-dark max-[430px]:mb-0 max-[430px]:mt-10
           max-[430px]:text-xl min-[500px]:max-[750px]:w-[320px] min-[749px]:max-lg:w-5/6 lg:w-[364px]"
+            onClick={handlePaginationParams}
           >
             See More
           </Button>

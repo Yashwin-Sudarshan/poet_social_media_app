@@ -22,7 +22,12 @@ export async function getFeaturedPoem() {
 }
 
 export async function getPoemsByFilter(params: GetPoemsByFilterParams) {
-  const { searchQuery, filter = "TOP_THIS_WEEK" } = params;
+  const {
+    searchQuery,
+    filter = "TOP_THIS_WEEK",
+    page = 1,
+    pageSize = 6,
+  } = params;
 
   const result = await fetch(
     process.env.POETVINE_API_URL + `/poems?filter=${filter}`,
@@ -37,7 +42,14 @@ export async function getPoemsByFilter(params: GetPoemsByFilterParams) {
     .then((response) => response.json())
     .catch((error) => console.log(error));
 
+  // TODO: Modify API to support pagination. Below code is a workaround in the meantime
+  const numAllPoemsReturned = result.poems.length;
+
+  const endIndex = (page - 1) * pageSize + pageSize;
+
   const resultsAfterSearch = searchPoems(result.poems, searchQuery);
 
-  return resultsAfterSearch;
+  const paginatedPoems = resultsAfterSearch.slice(0, endIndex);
+
+  return { paginatedPoems, numAllPoemsReturned };
 }

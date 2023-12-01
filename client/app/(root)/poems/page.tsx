@@ -11,9 +11,10 @@ import { formatTimestamp } from "@/lib/utils";
 import { SearchParamsProps } from "@/types";
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
-  const filteredPoems = await getPoemsByFilter({
+  const result = await getPoemsByFilter({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
   });
   const featuredPoem = await getFeaturedPoem();
 
@@ -23,7 +24,10 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
       md:max-[860px]:justify-center lg:justify-center lg:gap-4 xl:gap-x-[30px] min-[1330px]:mx-20
       min-[1440px]:mx-[140px]"
     >
-      <PoemsLayout filteredPoems={filteredPoems} />
+      <PoemsLayout
+        filteredPoems={result.paginatedPoems}
+        numAllPoems={result.numAllPoemsReturned}
+      />
       <div
         className="max-[750px]:flex max-[750px]:flex-col max-[750px]:items-center
          max-[750px]:gap-y-[30px] max-[430px]:mt-20 min-[750px]:max-[1040px]:ml-5"
