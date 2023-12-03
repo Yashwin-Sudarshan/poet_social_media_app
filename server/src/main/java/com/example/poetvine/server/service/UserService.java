@@ -4,16 +4,19 @@ import com.example.poetvine.server.exception.ResourceNotFoundException;
 import com.example.poetvine.server.exception.UserNotAuthorisedException;
 import com.example.poetvine.server.model.Poem;
 import com.example.poetvine.server.model.User;
+import com.example.poetvine.server.model.enumeration.Filter;
 import com.example.poetvine.server.model.enumeration.VisibilityPreference;
 import com.example.poetvine.server.payload.EditUserRequest;
 import com.example.poetvine.server.repository.PoemRepository;
 import com.example.poetvine.server.repository.UserRepository;
 import com.example.poetvine.server.response.BaseUserDto;
+import com.example.poetvine.server.response.PoemDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -45,6 +48,30 @@ public class UserService {
         }
 
         return users;
+    }
+
+    public Set<User> getUsersByFilter(Set<PoemDto> poems, User userRequesting) {
+        Set<String> usernames = new HashSet<>();
+
+        getUsers(userRequesting).stream()
+                .forEach(user -> { usernames.add(user.getUsername()); });
+
+        Set<String> reorderedUsernames = new HashSet<>();
+
+        for (PoemDto poem: poems) {
+            if (usernames.contains(poem.getAuthorUsername())) {
+                reorderedUsernames.add(poem.getAuthorUsername());
+            }
+        }
+
+        Set<User> reorderedUsers = new HashSet<>();
+
+        reorderedUsernames.stream()
+            .forEach(username -> {
+                reorderedUsers.add(findByUsername(username));
+            });
+
+        return reorderedUsers;
     }
 
     public User getUserProfile(User userRequesting, String usernameToView) {

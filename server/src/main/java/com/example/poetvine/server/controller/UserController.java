@@ -4,11 +4,14 @@ import com.example.poetvine.server.config.security.JwtService;
 import com.example.poetvine.server.exception.ResourceNotFoundException;
 import com.example.poetvine.server.exception.UserNotAuthorisedException;
 import com.example.poetvine.server.model.User;
+import com.example.poetvine.server.model.enumeration.Filter;
 import com.example.poetvine.server.payload.EditUserRequest;
 import com.example.poetvine.server.response.BaseUserDto;
 import com.example.poetvine.server.response.MyUserDto;
 import com.example.poetvine.server.response.OtherUserDto;
+import com.example.poetvine.server.response.PoemDto;
 import com.example.poetvine.server.service.MapValidationErrorService;
+import com.example.poetvine.server.service.PoemService;
 import com.example.poetvine.server.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,18 +34,41 @@ public class UserController {
 
     private final UserService userService;
 
+    private final PoemService poemService;
+
     private final JwtService jwtService;
 
     private final MapValidationErrorService mapValidationErrorService;
 
+//    @GetMapping
+//    public ResponseEntity<?> getUsers(@AuthenticationPrincipal UserDetails userDetails) {
+//        User userRequesting = null;
+//        if (userDetails != null) {
+//            userRequesting = userService.findByUsername(userDetails.getUsername());
+//        }
+//
+//        Set<BaseUserDto> users = userService.getUsers(userRequesting).stream()
+//                .map(User::toOtherUserDto)
+//                .collect(Collectors.toSet());
+//
+//        Map<String, Set<BaseUserDto>> response = new HashMap<>();
+//        response.put("users", users);
+//
+//        return ResponseEntity.ok(response);
+//    }
+
     @GetMapping
-    public ResponseEntity<?> getUsers(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getUsersByFilter(
+            @RequestParam(name = "filter") Filter filter,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
         User userRequesting = null;
         if (userDetails != null) {
             userRequesting = userService.findByUsername(userDetails.getUsername());
         }
 
-        Set<BaseUserDto> users = userService.getUsers(userRequesting).stream()
+        Set<PoemDto> poems = poemService.getPoemsByFilter(filter, userRequesting);
+        Set<BaseUserDto> users = userService.getUsersByFilter(poems, userRequesting).stream()
                 .map(User::toOtherUserDto)
                 .collect(Collectors.toSet());
 
