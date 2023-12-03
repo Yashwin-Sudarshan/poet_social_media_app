@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -38,13 +39,13 @@ const UserCard = ({
         <span className="text-[30px] font-bold max-[430px]:text-2xl">
           {number_of_poems_published}
         </span>{" "}
-        poems published
+        {number_of_poems_published > 1 ? "poems published" : "poem published"}
       </p>
       <p className="mt-5 text-lg max-[430px]:text-base">
         <span className="text-[30px] font-bold max-[430px]:text-2xl">
           {number_of_followers}
         </span>{" "}
-        followers
+        {number_of_followers > 1 ? "followers" : "follower"}
       </p>
       <div className="mt-5 text-lg max-[430px]:text-base">
         <p>

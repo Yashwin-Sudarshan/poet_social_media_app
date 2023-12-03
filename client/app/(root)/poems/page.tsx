@@ -1,14 +1,13 @@
 import React from "react";
 import PoemCard from "@/components/shared/PoemCard";
 
-// Remove this once api is integrated
-import { MockTrendingPoetsData } from "@/constants";
 import UserCard from "@/components/shared/UserCard";
 import Link from "next/link";
 import PoemsLayout from "@/components/shared/PoemsLayout";
 import { getFeaturedPoem, getPoemsByFilter } from "@/lib/actions/poem.action";
 import { formatTimestamp } from "@/lib/utils";
 import { SearchParamsProps } from "@/types";
+import { getTrendingPoets } from "@/lib/actions/user.action";
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
   const result = await getPoemsByFilter({
@@ -17,6 +16,7 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
     page: searchParams.page ? +searchParams.page : 1,
   });
   const featuredPoem = await getFeaturedPoem();
+  const trendingPoets = await getTrendingPoets(3);
 
   return (
     <div
@@ -55,7 +55,7 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
             Trending Poets
           </h2>
           <div className="mt-10 flex flex-col gap-5 max-[430px]:mt-5">
-            {MockTrendingPoetsData.map((user, index) => (
+            {trendingPoets.map((user, index) => (
               <UserCard
                 key={index}
                 profile_image_name={user.profile_image_name}
