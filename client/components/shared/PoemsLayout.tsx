@@ -48,6 +48,20 @@ const PoemsLayout = ({ filteredPoems, numAllPoems }: Props) => {
     router.push(newUrl, { scroll: false });
   };
 
+  const rearrangedFilterdPoemsForDoubleColumn = () => {
+    const rearrangedFilteredPoems = [];
+
+    for (let i = 0; i < filteredPoems.length; i += 2) {
+      rearrangedFilteredPoems.push(filteredPoems[i]);
+    }
+
+    for (let i = 1; i < filteredPoems.length; i += 2) {
+      rearrangedFilteredPoems.push(filteredPoems[i]);
+    }
+
+    return rearrangedFilteredPoems;
+  };
+
   const SearchFilterGroup = (type: string) => {
     const [isTopFilterSelected, setIsTopFilterSelected] = useState(true);
     const [isRecentFilterSelected, setIsRecentFilterSelected] = useState(false);
@@ -86,6 +100,8 @@ const PoemsLayout = ({ filteredPoems, numAllPoems }: Props) => {
               if (!isTopFilterSelected) {
                 setIsTopFilterSelected(true);
                 setIsRecentFilterSelected(false);
+
+                handleSelectUpdateParams("TOP_THIS_WEEK");
               }
             }}
           >
@@ -96,6 +112,7 @@ const PoemsLayout = ({ filteredPoems, numAllPoems }: Props) => {
             disabled={isRecentFilterSelected}
             onValueChange={handleSelectUpdateParams}
             defaultValue="TOP_THIS_WEEK"
+            value={searchParams.get("filter")?.toString()}
           >
             <SelectTrigger
               className="absolute mt-2.5 flex w-36 justify-start gap-1 border-none pr-2 text-lg text-brown focus-visible:ring-0
@@ -276,7 +293,7 @@ const PoemsLayout = ({ filteredPoems, numAllPoems }: Props) => {
         min-[1024px]:pr-4 min-[1295px]:pr-[35px]"
         >
           <div className="flex flex-col gap-5">
-            {filteredPoems
+            {rearrangedFilterdPoemsForDoubleColumn()
               .slice(0, Math.ceil(filteredPoems.length / 2))
               .map((poem, index) => (
                 <PoemCard
@@ -294,7 +311,7 @@ const PoemsLayout = ({ filteredPoems, numAllPoems }: Props) => {
               ))}
           </div>
           <div className="flex flex-col gap-5">
-            {filteredPoems
+            {rearrangedFilterdPoemsForDoubleColumn()
               .slice(Math.ceil(filteredPoems.length / 2))
               .map((poem, index) => (
                 <PoemCard
