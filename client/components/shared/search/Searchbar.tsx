@@ -44,32 +44,6 @@ const Searchbar = ({ placeholder, route }: Props) => {
     return () => clearTimeout(debounceSearch);
   }, [search, route, pathname, router, searchParams, query]);
 
-  // useEffect(() => {
-  //   const delayDebounceFn = setTimeout(() => {
-  //     if (search) {
-  //       const newUrl = formUrlQuery({
-  //         params: searchParams.toString(),
-  //         key: "q",
-  //         value: search,
-  //       });
-
-  //       router.push(newUrl, { scroll: false });
-  //     } else {
-  //       console.log(route, pathname);
-  //       if (pathname === route) {
-  //         const newUrl = removeKeysFromQuery({
-  //           params: searchParams.toString(),
-  //           keysToRemove: ["q"],
-  //         });
-
-  //         router.push(newUrl, { scroll: false });
-  //       }
-  //     }
-  //   }, 300);
-
-  //   return () => clearTimeout(delayDebounceFn);
-  // }, [search, route, pathname, router, searchParams, query]);
-
   return (
     <>
       <Input

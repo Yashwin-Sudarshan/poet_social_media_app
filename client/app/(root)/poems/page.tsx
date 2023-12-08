@@ -20,9 +20,9 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
 
   return (
     <div
-      className="mx-5 flex max-[1040px]:gap-0 max-[749px]:flex-col min-[500px]:mx-10
-      md:max-[860px]:justify-center lg:justify-center lg:gap-4 xl:gap-x-[30px] min-[1330px]:mx-20
-      min-[1440px]:mx-[140px]"
+      className="mx-5 flex min-h-screen max-[1040px]:gap-0 max-[749px]:flex-col
+      min-[500px]:mx-10 md:max-[860px]:justify-center lg:justify-center lg:gap-4 xl:gap-x-[30px]
+      min-[1330px]:mx-20 min-[1440px]:mx-[140px]"
     >
       <PoemsLayout
         filteredPoems={result.paginatedPoems}

@@ -69,12 +69,14 @@ const DesktopAndTabletNavbar = () => {
         >
           Login
         </Button>
-        <Button
-          className="h-14 w-24 rounded-[10px] border-2 border-brown bg-brown text-xl font-bold text-pale 
-          hover:shadow-default dark:border-dark-pale dark:bg-dark-pale min-[920px]:w-32 min-[920px]:text-2xl min-[1180px]:w-[172px]"
+        <Link
+          className="flex h-14 w-24 items-center justify-center rounded-[10px] border-2 border-brown bg-brown 
+          text-xl font-bold text-pale hover:shadow-default dark:border-dark-pale dark:bg-dark-pale
+          min-[920px]:w-32 min-[920px]:text-2xl min-[1180px]:w-[172px]"
+          href="/sign-up"
         >
           Sign Up
-        </Button>
+        </Link>
       </div>
     </div>
   );
@@ -210,12 +212,13 @@ const MobileNavBar = () => {
             >
               Login
             </Button>
-            <Button
-              className="h-14 w-32 rounded-[10px] border-2 border-brown bg-brown text-xl font-bold text-pale 
-                hover:shadow-default dark:border-dark-pale dark:bg-dark-pale"
+            <Link
+              className="flex h-14 w-32 items-center justify-center rounded-[10px] border-2 border-brown bg-brown 
+                text-xl font-bold text-pale hover:shadow-default dark:border-dark-pale dark:bg-dark-pale"
+              href="/sign-up"
             >
               Sign Up
-            </Button>
+            </Link>
           </div>
         </div>
       )}
