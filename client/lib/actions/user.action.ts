@@ -1,5 +1,7 @@
 "use server";
 
+import { CreateUserParams } from "@/types/shared.types";
+
 interface User {
   profile_image_name: string;
   username: string;
@@ -27,4 +29,44 @@ export async function getTrendingPoets(limit: number) {
 
   // Return the first `limit` elements of the array
   return usersArray.slice(0, limit);
+}
+
+export async function registerUser(params: CreateUserParams) {
+  const { username, email, password } = params;
+
+  const requestData = JSON.stringify({
+    username,
+    email,
+    password,
+  });
+
+  try {
+    const result = await fetch(
+      process.env.POETVINE_API_URL + "/auth/register",
+      {
+        method: "POST",
+        body: requestData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (result.ok) {
+      const data = await result.json();
+
+      return data.token;
+    } else {
+      const errorData = await result.json();
+
+      if (result.status === 400) {
+        throw new Error(errorData.error);
+      } else {
+        throw new Error("Unexpected error during registration");
+      }
+    }
+  } catch (error: any) {
+    console.error("Error during registration:", error.message);
+    throw error;
+  }
 }

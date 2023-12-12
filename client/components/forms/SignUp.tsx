@@ -15,8 +15,12 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { SignUpSchema } from "@/lib/validations";
+import { registerUser } from "@/lib/actions/user.action";
+import { useRouter } from "next/navigation";
 
 const SignUp = () => {
+  const router = useRouter();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -28,11 +32,18 @@ const SignUp = () => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof SignUpSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof SignUpSchema>) {
+    const { username, email, password } = values;
+    try {
+      const token = await registerUser({ username, email, password });
+
+      document.cookie = `token=${token}; path=/; HttpOnly; Secure`; // Make sure to use HTTPS in production
+
+      router.push("/poems");
+    } catch (error: any) {
+      console.error("Registration failed:", error.message);
+      alert(error.message);
+    }
   }
 
   return (
